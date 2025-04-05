@@ -1,0 +1,18 @@
+# This file has been removed as the checks were redundant with GitHub's built-in security features.
+# Security is now handled through:
+# - GitHub's built-in security alerts
+# - Dependabot for dependency updates
+# - Private vulnerability reporting (enabled in repository settings)
+# - SECURITY.md file for reporting guidelines 
+
+name: Security (Placeholder)
+
+on:
+  workflow_dispatch:  # Only runs manually
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: No-op
+        run: echo "This is a placeholder for future security workflows" 
