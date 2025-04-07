@@ -30,7 +30,7 @@ numpy = ">=1.20.0"
 aerospike-vector-search = ">=3.0.0,<4.0.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
+black = "^24.3.0"
 ruff = "^0.0.262"
 
 [tool.poetry.group.test.dependencies]
