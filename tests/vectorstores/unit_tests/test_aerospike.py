@@ -25,8 +25,7 @@ def mock_client() -> None:
 
 
 def test_aerospike(mock_client: Any) -> None:
-    """Ensure an error is raised when search with score in hybrid mode
-    because in this case Elasticsearch does not return any score.
+    """test that an AVS vector store can be created and used to search
     """
     from aerospike_vector_search import AVSError
 

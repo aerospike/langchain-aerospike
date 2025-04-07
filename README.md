@@ -28,14 +28,12 @@ poetry install
 
 3. Activate the virtual environment:
 ```bash
-poetry shell
+eval $(poetry env activate)
 ```
 
 ## Requirements
 
-- Python 3.9+
-- Aerospike Vector Search client
-- LangChain Core
+See the pyproject.toml file dependencies section.
 
 ## Usage
 
@@ -88,6 +86,10 @@ poetry run pytest tests/
 ## Advanced Usage
 
 For more advanced usage, including configuring distance metrics, indexes, and other options, please refer to the API documentation and the Aerospike Vector Search client documentation.
+
+https://python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.aerospike.Aerospike.html
+
+https://aerospike-vector-search-python-client.readthedocs.io/en/latest/
 
 ## Migration
 
