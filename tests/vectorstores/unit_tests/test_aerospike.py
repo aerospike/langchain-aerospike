@@ -120,7 +120,7 @@ def test_add_texts_returns_ids(mock_client: MagicMock) -> None:
         distance_strategy=VectorDistanceMetric.COSINE,
     )
 
-    excepted = ["0", "1"]
+    expected = ["0", "1"]
     actual = aerospike.add_texts(
         ["foo", "bar"],
         metadatas=[{"foo": 0}, {"bar": 1}],
@@ -130,7 +130,7 @@ def test_add_texts_returns_ids(mock_client: MagicMock) -> None:
         wait_for_index=True,
     )
 
-    assert excepted == actual
+    assert expected == actual
     mock_client.upsert.assert_has_calls(
         calls=[
             call(
