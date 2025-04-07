@@ -4,7 +4,7 @@ Thank you for your interest in contributing to langchain-aerospike! This documen
 
 ## Code of Conduct
 
-By participating in this project, you agree to abide by the [Aerospike Code of Conduct](https://www.aerospike.com/company/code-of-conduct/).
+By participating in this project, you agree to abide by the Aerospike Code of Conduct
 
 ## Security
 
@@ -25,6 +25,7 @@ By participating in this project, you agree to abide by the [Aerospike Code of C
 3. **Make Changes**
    - Follow the existing code style and patterns
    - Write clear commit messages
+   - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
    - Include tests for new features and bug fixes
    - Update documentation as needed
 

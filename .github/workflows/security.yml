@@ -1,9 +1,9 @@
-# This file has been removed as the checks were redundant with GitHub's built-in security features.
-# Security is now handled through:
+# Security is handled through:
 # - GitHub's built-in security alerts
 # - Dependabot for dependency updates
 # - Private vulnerability reporting (enabled in repository settings)
 # - SECURITY.md file for reporting guidelines 
+# - Any additional scans in this workflow (snyk, xray, etc.)
 
 name: Security (Placeholder)
 
