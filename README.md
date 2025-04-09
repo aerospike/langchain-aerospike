@@ -35,6 +35,16 @@ eval $(poetry env activate)
 
 See the pyproject.toml file dependencies section.
 
+## Running Examples
+
+The examples in the `examples/` directory require additional dependencies. You can install them with:
+
+```bash
+poetry install --with examples
+```
+
+This will install dependencies like `langchain-openai` which are used in the example scripts.
+
 ## Usage
 
 ```python

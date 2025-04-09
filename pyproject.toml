@@ -33,6 +33,9 @@ aerospike-vector-search = ">=4.1.0"
 black = "^23.3.0"
 ruff = "^0.0.262"
 
+[tool.poetry.group.examples.dependencies]
+langchain-openai = "^0.0.5"
+
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.5"
 pytest-socket = "^0.7.0"
