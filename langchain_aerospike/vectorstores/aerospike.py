@@ -113,7 +113,7 @@ class Aerospike(VectorStore):
         set_name: Optional[str] = None,
         embedding_chunk_size: int = 1000,
         index_name: Optional[str] = None,
-        wait_for_index: bool = True,
+        wait_for_index: bool = False,
         **kwargs: Any,
     ) -> List[str]:
         """Run more texts through the embeddings and add to the vectorstore.
@@ -126,11 +126,9 @@ class Aerospike(VectorStore):
             set_name: Optional aerospike set name to add the texts to.
             batch_size: Batch size to use when adding the texts to the vectorstore.
             embedding_chunk_size: Chunk size to use when embedding the texts.
-            index_name: Optional aerospike index name used for waiting for index
-                completion. If not provided, the default index_name will be used.
-            wait_for_index: If True, wait for the all the texts to be indexed
-                before returning. Requires index_name to be provided. Defaults
-                to True.
+            index_name: Deprecated. No longer has any effect.
+            wait_for_index: Deprecated. No longer has any effect as wait_for_index_completion
+                was removed in aerospike-vector-search 4.0.0.
             kwargs: Additional keyword arguments to pass to the client upsert call.
 
         Returns:
@@ -140,11 +138,22 @@ class Aerospike(VectorStore):
         if set_name is None:
             set_name = self._set_name
 
-        if index_name is None:
-            index_name = self._index_name
+        if index_name:
+            warnings.warn(
+                "index_name parameter is deprecated and no longer has any effect. "
+                "This method no longer waits for index completion.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
-        if wait_for_index and index_name is None:
-            raise ValueError("if wait_for_index is True, index_name must be provided")
+        if wait_for_index:
+            warnings.warn(
+                "wait_for_index parameter is deprecated and no longer has any effect. "
+                "The wait_for_index_completion method was removed from AVS client in aerospike-vector-search 4.0.0. "
+                "If you must wait for index completion, consider using a standalone index.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         texts = list(texts)
         ids = ids or [str(uuid.uuid4()) for _ in texts]
@@ -176,12 +185,6 @@ class Aerospike(VectorStore):
                     record_data=metadata,
                     **kwargs,
                 )
-
-        if wait_for_index:
-            self._client.wait_for_index_completion(
-                namespace=self._namespace,
-                name=index_name,
-            )
 
         return ids
 
@@ -289,7 +292,7 @@ class Aerospike(VectorStore):
             namespace=self._namespace,
             query=embedding,
             limit=k,
-            field_names=metadata_keys,
+            include_fields=metadata_keys,
             **kwargs,
         )
 

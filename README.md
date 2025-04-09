@@ -83,6 +83,8 @@ for doc in docs:
 poetry run pytest tests/
 ```
 
+> **Note:** Aerospike Vector Search server version 1.1.0 or newer is required to run the integration tests.
+
 ## Advanced Usage
 
 For more advanced usage, including configuring distance metrics, indexes, and other options, please refer to the API documentation and the Aerospike Vector Search client documentation

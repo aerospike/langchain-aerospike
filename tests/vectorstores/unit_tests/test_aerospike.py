@@ -90,24 +90,6 @@ def test_init_bad_embedding(mock_client: Any) -> None:
         )
 
 
-def test_add_texts_wait_for_index_error(mock_client: Any) -> None:
-    aerospike = Aerospike(
-        client=mock_client,
-        embedding=FakeEmbeddings(),
-        text_key="text",
-        vector_key="vector",
-        # index_name="dummy_index",
-        namespace="test",
-        set_name="testset",
-        distance_strategy=VectorDistanceMetric.COSINE,
-    )
-
-    with pytest.raises(
-        ValueError, match="if wait_for_index is True, index_name must be provided"
-    ):
-        aerospike.add_texts(["foo", "bar"], wait_for_index=True)
-
-
 def test_add_texts_returns_ids(mock_client: MagicMock) -> None:
     aerospike = Aerospike(
         client=mock_client,
@@ -155,10 +137,6 @@ def test_add_texts_returns_ids(mock_client: MagicMock) -> None:
                 },
             ),
         ]
-    )
-    mock_client.wait_for_index_completion.assert_called_once_with(
-        namespace="test",
-        name="dummy_index",
     )
 
 

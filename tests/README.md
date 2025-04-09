@@ -26,4 +26,6 @@ Or run specific component tests:
 
 ```bash
 poetry run pytest tests/vectorstores
-``` 
+```
+
+> **Important:** Aerospike Vector Search server version 1.1.0 or newer is required to run the integration tests.

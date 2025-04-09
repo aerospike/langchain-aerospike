@@ -7,6 +7,7 @@ import time
 from typing import Any, Generator
 
 import pytest
+from aerospike_vector_search import types, Client
 from langchain_core.documents import Document
 
 from langchain_aerospike.vectorstores import (
@@ -38,11 +39,6 @@ def compose_down() -> None:
 
 @pytest.fixture(scope="class", autouse=True)
 def docker_compose() -> Generator[None, None, None]:
-    try:
-        import aerospike_vector_search  # noqa
-    except ImportError:
-        pytest.skip("aerospike_vector_search not installed")
-
     if not os.path.exists(FEAT_KEY_PATH):
         pytest.skip(
             "Aerospike feature key file not found at path {}".format(FEAT_KEY_PATH)
@@ -55,12 +51,7 @@ def docker_compose() -> Generator[None, None, None]:
 
 @pytest.fixture(scope="class")
 def seeds() -> Generator[Any, None, None]:
-    try:
-        from aerospike_vector_search.types import HostPort
-    except ImportError:
-        pytest.skip("aerospike_vector_search not installed")
-
-    yield HostPort(
+    yield types.HostPort(
         host=TEST_AEROSPIKE_HOST_PORT[0],
         port=TEST_AEROSPIKE_HOST_PORT[1],
     )
@@ -68,24 +59,7 @@ def seeds() -> Generator[Any, None, None]:
 
 @pytest.fixture(scope="class")
 @pytest.mark.requires("aerospike_vector_search")
-def admin_client(seeds: Any) -> Generator[Any, None, None]:
-    try:
-        from aerospike_vector_search.admin import Client as AdminClient
-    except ImportError:
-        pytest.skip("aerospike_vector_search not installed")
-
-    with AdminClient(seeds=seeds) as admin_client:
-        yield admin_client
-
-
-@pytest.fixture(scope="class")
-@pytest.mark.requires("aerospike_vector_search")
 def client(seeds: Any) -> Generator[Any, None, None]:
-    try:
-        from aerospike_vector_search import Client
-    except ImportError:
-        pytest.skip("aerospike_vector_search not installed")
-
     with Client(seeds=seeds) as client:
         yield client
 
@@ -117,6 +91,14 @@ def get_func_name() -> str:
     return inspect.stack()[1].function
 
 
+def wait_for_index_ready(client: Any, index_name: str) -> None:
+    while True:
+        index_status = client.index_get_status(namespace=TEST_NAMESPACE, name=index_name)
+        if index_status.readiness == types.IndexReadiness.READY:
+            break
+        time.sleep(0.25)
+
+
 """
 TODO: Add tests for delete()
 """
@@ -126,16 +108,16 @@ class TestAerospike:
     def test_from_text(
         self,
         client: Any,
-        admin_client: Any,
         embedder: ConsistentFakeEmbeddings,
     ) -> None:
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE,
         )
         aerospike = Aerospike.from_texts(
             ["foo", "bar", "baz", "bay", "bax", "baw", "bav"],
@@ -170,6 +152,7 @@ class TestAerospike:
                 },
             ),
         ]
+        wait_for_index_ready(client, index_name)
         actual = aerospike.search(
             "foo", k=3, index_name=index_name, search_type="similarity"
         )
@@ -179,16 +162,16 @@ class TestAerospike:
     def test_from_documents(
         self,
         client: Any,
-        admin_client: Any,
         embedder: ConsistentFakeEmbeddings,
     ) -> None:
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         documents = [
             Document(
@@ -251,6 +234,7 @@ class TestAerospike:
             set_name=set_name,
         )
 
+        wait_for_index_ready(client, index_name)
         actual = aerospike.search(
             "foo", k=3, index_name=index_name, search_type="similarity"
         )
@@ -259,16 +243,17 @@ class TestAerospike:
 
         assert actual == expected
 
-    def test_delete(self, aerospike: Aerospike, admin_client: Any, client: Any) -> None:
+    def test_delete(self, aerospike: Aerospike, client: Any) -> None:
         """Test end to end construction and search."""
 
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
 
         aerospike.add_texts(
@@ -288,16 +273,17 @@ class TestAerospike:
         assert not client.exists(namespace=TEST_NAMESPACE, set_name=set_name, key="2")
         assert not client.exists(namespace=TEST_NAMESPACE, set_name=set_name, key="3")
 
-    def test_search_blocking(self, aerospike: Aerospike, admin_client: Any) -> None:
+    def test_search_blocking(self, aerospike: Aerospike, client: Any) -> None:
         """Test end to end construction and search."""
 
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
 
         aerospike.add_texts(
@@ -307,6 +293,7 @@ class TestAerospike:
             set_name=set_name,
         )  # Blocks until all vectors are indexed
         expected = [Document(page_content="foo", metadata={ID_KEY: "1"})]
+        wait_for_index_ready(client, index_name)
         actual = aerospike.search(
             "foo",
             k=1,
@@ -317,57 +304,20 @@ class TestAerospike:
 
         assert actual == expected
 
-    def test_search_nonblocking(self, aerospike: Aerospike, admin_client: Any) -> None:
-        """Test end to end construction and search."""
-
-        index_name = set_name = get_func_name()
-        admin_client.index_create(
-            namespace=TEST_NAMESPACE,
-            sets=set_name,
-            name=index_name,
-            vector_field=VECTOR_KEY,
-            dimensions=10,
-        )
-
-        aerospike.add_texts(
-            ["foo", "bar", "baz"],
-            ids=["1", "2", "3"],
-            index_name=index_name,
-            set_name=set_name,
-            wait_for_index=True,
-        )  # blocking
-        aerospike.add_texts(
-            ["bay"], index_name=index_name, set_name=set_name, wait_for_index=False
-        )
-        expected = [
-            Document(page_content="foo", metadata={ID_KEY: "1"}),
-            Document(page_content="bar", metadata={ID_KEY: "2"}),
-            Document(page_content="baz", metadata={ID_KEY: "3"}),
-        ]
-        actual = aerospike.search(
-            "foo",
-            k=4,
-            index_name=index_name,
-            search_type="similarity",
-            metadata_keys=[ID_KEY],
-        )
-
-        # "bay"
-        assert actual == expected
-
     def test_similarity_search_with_score(
-        self, aerospike: Aerospike, admin_client: Any
+        self, aerospike: Aerospike, client: Any
     ) -> None:
         """Test end to end construction and search."""
 
         expected = [(Document(page_content="foo", metadata={ID_KEY: "1"}), 0.0)]
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz"],
@@ -375,6 +325,7 @@ class TestAerospike:
             index_name=index_name,
             set_name=set_name,
         )
+        wait_for_index_ready(client, index_name)
         actual = aerospike.similarity_search_with_score(
             "foo", k=1, index_name=index_name, metadata_keys=[ID_KEY]
         )
@@ -384,7 +335,7 @@ class TestAerospike:
     def test_similarity_search_by_vector_with_score(
         self,
         aerospike: Aerospike,
-        admin_client: Any,
+        client: Any,
         embedder: ConsistentFakeEmbeddings,
     ) -> None:
         """Test end to end construction and search."""
@@ -393,12 +344,13 @@ class TestAerospike:
             (Document(page_content="foo", metadata={"a": "b", ID_KEY: "1"}), 0.0)
         ]
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz"],
@@ -407,6 +359,7 @@ class TestAerospike:
             set_name=set_name,
             metadatas=[{"a": "b", "1": "2"}, {"a": "c"}, {"a": "d"}],
         )
+        wait_for_index_ready(client, index_name)
         actual = aerospike.similarity_search_by_vector_with_score(
             embedder.embed_query("foo"),
             k=1,
@@ -419,7 +372,7 @@ class TestAerospike:
     def test_similarity_search_by_vector(
         self,
         aerospike: Aerospike,
-        admin_client: Any,
+        client: Any,
         embedder: ConsistentFakeEmbeddings,
     ) -> None:
         """Test end to end construction and search."""
@@ -429,12 +382,13 @@ class TestAerospike:
             Document(page_content="bar", metadata={"a": "c", ID_KEY: "2"}),
         ]
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz"],
@@ -443,6 +397,7 @@ class TestAerospike:
             set_name=set_name,
             metadatas=[{"a": "b", "1": "2"}, {"a": "c"}, {"a": "d"}],
         )
+        wait_for_index_ready(client, index_name)
         actual = aerospike.similarity_search_by_vector(
             embedder.embed_query("foo"),
             k=2,
@@ -452,7 +407,7 @@ class TestAerospike:
 
         assert actual == expected
 
-    def test_similarity_search(self, aerospike: Aerospike, admin_client: Any) -> None:
+    def test_similarity_search(self, aerospike: Aerospike, client: Any) -> None:
         """Test end to end construction and search."""
 
         expected = [
@@ -461,12 +416,13 @@ class TestAerospike:
             Document(page_content="baz", metadata={ID_KEY: "3"}),
         ]
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz"],
@@ -474,6 +430,7 @@ class TestAerospike:
             index_name=index_name,
             set_name=set_name,
         )  # blocking
+        wait_for_index_ready(client, index_name)
         actual = aerospike.similarity_search(
             "foo", k=3, index_name=index_name, metadata_keys=[ID_KEY]
         )
@@ -483,18 +440,18 @@ class TestAerospike:
     def test_max_marginal_relevance_search_by_vector(
         self,
         client: Any,
-        admin_client: Any,
         embedder: ConsistentFakeEmbeddings,
     ) -> None:
         """Test max marginal relevance search."""
 
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike = Aerospike.from_texts(
             ["foo", "bar", "baz", "bay", "bax", "baw", "bav"],
@@ -506,6 +463,7 @@ class TestAerospike:
             set_name=set_name,
         )
 
+        wait_for_index_ready(client, index_name)
         mmr_output = aerospike.max_marginal_relevance_search_by_vector(
             embedder.embed_query("foo"), index_name=index_name, k=3, fetch_k=3
         )
@@ -541,17 +499,18 @@ class TestAerospike:
         assert len(mmr_output) == 2
 
     def test_max_marginal_relevance_search(
-        self, aerospike: Aerospike, admin_client: Any
+        self, aerospike: Aerospike, client: Any
     ) -> None:
         """Test max marginal relevance search."""
 
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz", "bay", "bax", "baw", "bav"],
@@ -559,7 +518,7 @@ class TestAerospike:
             index_name=index_name,
             set_name=set_name,
         )
-
+        wait_for_index_ready(client, index_name)
         mmr_output = aerospike.max_marginal_relevance_search(
             "foo", index_name=index_name, k=3, fetch_k=3
         )
@@ -594,18 +553,18 @@ class TestAerospike:
         )
         assert len(mmr_output) == 2
 
-    def test_cosine_distance(self, aerospike: Aerospike, admin_client: Any) -> None:
+    def test_cosine_distance(self, aerospike: Aerospike, client: Any) -> None:
         """Test cosine distance."""
-        from aerospike_vector_search import types
 
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
             vector_distance_metric=types.VectorDistanceMetric.COSINE,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz"],
@@ -613,7 +572,7 @@ class TestAerospike:
             index_name=index_name,
             set_name=set_name,
         )  # blocking
-
+        wait_for_index_ready(client, index_name)
         """
         foo vector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
         far vector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0]
@@ -630,19 +589,19 @@ class TestAerospike:
         assert actual_score == expected
 
     def test_dot_product_distance(
-        self, aerospike: Aerospike, admin_client: Any
+        self, aerospike: Aerospike, client: Any
     ) -> None:
         """Test dot product distance."""
-        from aerospike_vector_search import types
 
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
             vector_distance_metric=types.VectorDistanceMetric.DOT_PRODUCT,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz"],
@@ -650,7 +609,7 @@ class TestAerospike:
             index_name=index_name,
             set_name=set_name,
         )  # blocking
-
+        wait_for_index_ready(client, index_name)
         """
         foo vector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
         far vector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0]
@@ -666,18 +625,18 @@ class TestAerospike:
 
         assert actual_score == expected
 
-    def test_euclidean_distance(self, aerospike: Aerospike, admin_client: Any) -> None:
+    def test_euclidean_distance(self, aerospike: Aerospike, client: Any) -> None:
         """Test dot product distance."""
-        from aerospike_vector_search import types
 
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
             vector_distance_metric=types.VectorDistanceMetric.SQUARED_EUCLIDEAN,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "bar", "baz"],
@@ -685,7 +644,7 @@ class TestAerospike:
             index_name=index_name,
             set_name=set_name,
         )  # blocking
-
+        wait_for_index_ready(client, index_name)
         """
         foo vector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
         far vector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0]
@@ -700,14 +659,15 @@ class TestAerospike:
 
         assert actual_score == expected
 
-    def test_as_retriever(self, aerospike: Aerospike, admin_client: Any) -> None:
+    def test_as_retriever(self, aerospike: Aerospike, client: Any) -> None:
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo", "foo", "foo", "foo", "bar"],
@@ -715,7 +675,7 @@ class TestAerospike:
             index_name=index_name,
             set_name=set_name,
         )  # blocking
-
+        wait_for_index_ready(client, index_name)
         aerospike._index_name = index_name
         retriever = aerospike.as_retriever(
             search_type="similarity", search_kwargs={"k": 3}
@@ -725,19 +685,18 @@ class TestAerospike:
         assert all([d.page_content == "foo" for d in results])
 
     def test_as_retriever_distance_threshold(
-        self, aerospike: Aerospike, admin_client: Any
+        self, aerospike: Aerospike, client: Any
     ) -> None:
-        from aerospike_vector_search import types
-
         aerospike._distance_strategy = types.VectorDistanceMetric.COSINE
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
             vector_distance_metric=types.VectorDistanceMetric.COSINE,
+            mode=types.IndexMode.STANDALONE
         )
         aerospike.add_texts(
             ["foo1", "foo2", "foo3", "bar4", "bar5", "bar6", "bar7", "bar8"],
@@ -746,6 +705,7 @@ class TestAerospike:
             set_name=set_name,
         )  # blocking
 
+        wait_for_index_ready(client, index_name)
         aerospike._index_name = index_name
         retriever = aerospike.as_retriever(
             search_type="similarity_score_threshold",
@@ -757,19 +717,19 @@ class TestAerospike:
         assert len(results) == 3
 
     def test_as_retriever_add_documents(
-        self, aerospike: Aerospike, admin_client: Any
+        self, aerospike: Aerospike, client: Any
     ) -> None:
-        from aerospike_vector_search import types
 
         aerospike._distance_strategy = types.VectorDistanceMetric.COSINE
         index_name = set_name = get_func_name()
-        admin_client.index_create(
+        client.index_create(
             namespace=TEST_NAMESPACE,
             sets=set_name,
             name=index_name,
             vector_field=VECTOR_KEY,
             dimensions=10,
             vector_distance_metric=types.VectorDistanceMetric.COSINE,
+            mode=types.IndexMode.STANDALONE
         )
         retriever = aerospike.as_retriever(
             search_type="similarity_score_threshold",
@@ -828,6 +788,7 @@ class TestAerospike:
             wait_for_index=True,
         )
 
+        wait_for_index_ready(client, index_name)
         aerospike._index_name = index_name
         results = retriever.invoke("foo1")
 
