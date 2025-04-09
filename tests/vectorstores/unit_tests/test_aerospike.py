@@ -213,7 +213,7 @@ def test_similarity_search_by_vector_with_score_filters_missing_text_key(
         namespace="test",
         query=[1.0, 2.0, 3.0],
         limit=10,
-        field_names=[text_key, "foo"],
+        include_fields=[text_key, "foo"],
     )
 
     assert expected == actual
@@ -243,7 +243,7 @@ def test_similarity_search_by_vector_with_score_overwrite_index_name(
         namespace="test",
         query=[1.0, 2.0, 3.0],
         limit=4,
-        field_names=None,
+        include_fields=None,
     )
 
 
