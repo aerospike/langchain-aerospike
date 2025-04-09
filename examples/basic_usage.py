@@ -2,11 +2,27 @@
 
 from langchain_aerospike.vectorstores import Aerospike
 from langchain_openai import OpenAIEmbeddings
-from aerospike_vector_search import Client, HostPort
+from aerospike_vector_search import Client, HostPort, types
+
+INDEX_NAME = "example-index"
+NAMESPACE = "test"
+VECTOR_FIELD = "vector"
+DIMENSIONS = 10
+DISTANCE_METRIC = types.VectorDistanceMetric.COSINE
 
 # Initialize the Aerospike client
 # Replace with your Aerospike server connection details
-client = Client(seeds=[HostPort(host="localhost", port=3000)])
+client = Client(seeds=[HostPort(host="localhost", port=10000)])
+
+# Create an index in AVS
+client.index_create(
+    namespace=NAMESPACE,
+    name=INDEX_NAME,
+    vector_field=VECTOR_FIELD,
+    dimensions=DIMENSIONS,
+    mode=types.IndexMode.STANDALONE,
+    vector_distance_metric=DISTANCE_METRIC,
+)
 
 # Initialize the embeddings model
 # You need an OpenAI API key for this to work
@@ -16,11 +32,9 @@ embedding_model = OpenAIEmbeddings()
 vector_store = Aerospike(
     client=client,
     embedding=embedding_model,
-    namespace="test",  # Replace with your namespace
-    set_name="vectors",  # Replace with your set name
-    text_key="text",
-    metadata_key="metadata",
-    vector_key="vector",
+    namespace=NAMESPACE,
+    index_name=INDEX_NAME,
+    vector_key=VECTOR_FIELD,
 )
 
 # Add documents to the vector store
@@ -63,8 +77,10 @@ for i, (doc, score) in enumerate(docs_and_scores):
     print(f"Metadata: {doc.metadata}")
     print()
 
-# Example of deleting documents
-if document_ids:
-    # Delete the first document
-    vector_store.delete(ids=[document_ids[0]])
-    print(f"Deleted document with ID: {document_ids[0]}") 
+# Delete the documents from the vector store
+vector_store.delete(ids=document_ids)
+print(f"Deleted {len(document_ids)} documents from the vector store")
+
+# Delete the index from AVS
+client.index_delete(namespace=NAMESPACE, name=INDEX_NAME)
+print(f"Deleted index {INDEX_NAME} from Aerospike")
