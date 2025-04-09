@@ -34,7 +34,7 @@ black = "^23.3.0"
 ruff = "^0.0.262"
 
 [tool.poetry.group.examples.dependencies]
-langchain-openai = "^0.3"
+langchain-huggingface = "^0.1.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.5"

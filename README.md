@@ -43,7 +43,7 @@ The examples in the `examples/` directory require additional dependencies. You c
 poetry install --with examples
 ```
 
-This will install dependencies like `langchain-openai` which are used in the example scripts.
+This will install dependencies like `langchain-huggingface` which are used in the example scripts.
 
 ## Usage
 

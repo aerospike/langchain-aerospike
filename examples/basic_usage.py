@@ -1,32 +1,35 @@
 """Basic usage example for the langchain-aerospike package."""
 
 from langchain_aerospike.vectorstores import Aerospike
-from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from aerospike_vector_search import Client, HostPort, types
 
 INDEX_NAME = "example-index"
 NAMESPACE = "test"
 VECTOR_FIELD = "vector"
-DIMENSIONS = 10
+DIMENSIONS = 384  # This matches the default model's output dimension
 DISTANCE_METRIC = types.VectorDistanceMetric.COSINE
+
+
+def wait_for_index_ready(client, index_name: str) -> None:
+    import time
+    while True:
+        index_status = client.index_get_status(namespace=NAMESPACE, name=index_name)
+        if index_status.readiness == types.IndexReadiness.READY:
+            break
+        time.sleep(0.25)
+
 
 # Initialize the Aerospike client
 # Replace with your Aerospike server connection details
 client = Client(seeds=[HostPort(host="localhost", port=10000)])
 
-# Create an index in AVS
-client.index_create(
-    namespace=NAMESPACE,
-    name=INDEX_NAME,
-    vector_field=VECTOR_FIELD,
-    dimensions=DIMENSIONS,
-    mode=types.IndexMode.STANDALONE,
-    vector_distance_metric=DISTANCE_METRIC,
-)
-
 # Initialize the embeddings model
-# You need an OpenAI API key for this to work
-embedding_model = OpenAIEmbeddings()
+# Using a small, fast model from Hugging Face
+embedding_model = HuggingFaceEmbeddings(
+    model_name="all-MiniLM-L6-v2",  # A small, efficient embedding model
+    model_kwargs={'device': 'cpu'},  # Use CPU for inference
+)
 
 # Create an Aerospike vector store
 vector_store = Aerospike(
@@ -56,6 +59,20 @@ document_ids = vector_store.add_texts(
 )
 print(f"Added {len(document_ids)} documents to Aerospike")
 
+# Create an index in AVS
+# Since we are using a standalone index, we create it after adding documents
+client.index_create(
+    namespace=NAMESPACE,
+    name=INDEX_NAME,
+    vector_field=VECTOR_FIELD,
+    dimensions=DIMENSIONS,
+    mode=types.IndexMode.STANDALONE,
+    vector_distance_metric=DISTANCE_METRIC,
+)
+
+# Wait for the index to be ready
+wait_for_index_ready(client, INDEX_NAME)
+
 # Search for similar documents
 query = "Tell me about vector databases"
 docs = vector_store.similarity_search(query, k=2)
@@ -82,5 +99,8 @@ vector_store.delete(ids=document_ids)
 print(f"Deleted {len(document_ids)} documents from the vector store")
 
 # Delete the index from AVS
-client.index_delete(namespace=NAMESPACE, name=INDEX_NAME)
+client.index_drop(namespace=NAMESPACE, name=INDEX_NAME)
 print(f"Deleted index {INDEX_NAME} from Aerospike")
+
+# Close the client
+client.close()
