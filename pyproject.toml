@@ -31,7 +31,7 @@ aerospike-vector-search = ">=4.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
-ruff = "^0.0.262"
+ruff = "^0.11.5"
 
 [tool.poetry.group.examples.dependencies]
 langchain-huggingface = "^0.1.2"
