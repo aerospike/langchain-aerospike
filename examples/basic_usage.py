@@ -22,7 +22,9 @@ def wait_for_index_ready(client, index_name: str) -> None:
 
 # Initialize the Aerospike client
 # Replace with your Aerospike server connection details
-client = Client(seeds=[HostPort(host="localhost", port=10000)])
+# using a load balancer with AVS is best practice so is_loadbalancer is set True here
+# you should set this to False if you are not using a load balancer with an AVS cluster of more than 1 node
+client = Client(seeds=[HostPort(host="localhost", port=5000)], is_loadbalancer=True)
 
 # Initialize the embeddings model
 # Using a small, fast model from Hugging Face
