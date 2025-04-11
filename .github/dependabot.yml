@@ -16,7 +16,6 @@ updates:
     labels:
       - "dependencies"
       - "python"
-      - "security"
 
   # Go dependencies
   - package-ecosystem: "gomod"
@@ -34,7 +33,6 @@ updates:
     labels:
       - "dependencies"
       - "go"
-      - "security"
 
   # Java/Maven dependencies
   - package-ecosystem: "maven"
@@ -52,4 +50,3 @@ updates:
     labels:
       - "dependencies"
       - "java"
-      - "security" 
