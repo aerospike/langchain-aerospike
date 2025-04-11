@@ -95,6 +95,23 @@ poetry run pytest tests/
 
 > **Note:** Aerospike Vector Search server version 1.1.0 or newer is required to run the integration tests.
 
+## Documentation
+
+Documentation is built using Sphinx and hosted on ReadTheDocs. To build the documentation locally:
+
+1. Install the documentation dependencies:
+```bash
+poetry install --with docs
+```
+
+2. Build the documentation:
+```bash
+cd docs
+make html
+```
+
+3. View the documentation in your browser by opening `docs/build/html/index.html`.
+
 ## Advanced Usage
 
 For more advanced usage, including configuring distance metrics, indexes, and other options, please refer to the API documentation and the Aerospike Vector Search client documentation

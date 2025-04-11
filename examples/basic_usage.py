@@ -4,6 +4,9 @@ from langchain_aerospike.vectorstores import Aerospike
 from langchain_huggingface import HuggingFaceEmbeddings
 from aerospike_vector_search import Client, HostPort, types
 
+# NOTE: Your Aerospike Vector Search cluster must be configured with the ``standalone-indexer`` node role on at least 1 node for the following example to work.
+# See the `Aerospike Vector Search documentation <https://aerospike.com/docs/vector/manage/config/#node-roles>`_ for more information.
+
 INDEX_NAME = "example-index"
 NAMESPACE = "test"
 VECTOR_FIELD = "vector"
