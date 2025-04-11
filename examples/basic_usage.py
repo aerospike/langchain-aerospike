@@ -1,26 +1,45 @@
 """Basic usage example for the langchain-aerospike package."""
 
 from langchain_aerospike.vectorstores import Aerospike
-from langchain_openai import OpenAIEmbeddings
-from aerospike_vector_search import Client, HostPort
+from langchain_huggingface import HuggingFaceEmbeddings
+from aerospike_vector_search import Client, HostPort, types
+
+INDEX_NAME = "example-index"
+NAMESPACE = "test"
+VECTOR_FIELD = "vector"
+DIMENSIONS = 384  # This matches the default model's output dimension
+DISTANCE_METRIC = types.VectorDistanceMetric.COSINE
+
+
+def wait_for_index_ready(client, index_name: str) -> None:
+    import time
+    while True:
+        index_status = client.index_get_status(namespace=NAMESPACE, name=index_name)
+        if index_status.readiness == types.IndexReadiness.READY:
+            break
+        time.sleep(0.25)
+
 
 # Initialize the Aerospike client
 # Replace with your Aerospike server connection details
-client = Client(seeds=[HostPort(host="localhost", port=3000)])
+# using a load balancer with AVS is best practice so is_loadbalancer is set True here
+# you should set this to False if you are not using a load balancer with an AVS cluster of more than 1 node
+client = Client(seeds=[HostPort(host="localhost", port=5000)], is_loadbalancer=True)
 
 # Initialize the embeddings model
-# You need an OpenAI API key for this to work
-embedding_model = OpenAIEmbeddings()
+# Using a small, fast model from Hugging Face
+embedding_model = HuggingFaceEmbeddings(
+    model_name="all-MiniLM-L6-v2",  # A small, efficient embedding model
+    model_kwargs={'device': 'cpu'},  # Use CPU for inference
+)
 
 # Create an Aerospike vector store
 vector_store = Aerospike(
     client=client,
     embedding=embedding_model,
-    namespace="test",  # Replace with your namespace
-    set_name="vectors",  # Replace with your set name
-    text_key="text",
-    metadata_key="metadata",
-    vector_key="vector",
+    namespace=NAMESPACE,
+    index_name=INDEX_NAME,
+    vector_key=VECTOR_FIELD,
 )
 
 # Add documents to the vector store
@@ -41,6 +60,20 @@ document_ids = vector_store.add_texts(
     metadatas=metadatas,
 )
 print(f"Added {len(document_ids)} documents to Aerospike")
+
+# Create an index in AVS
+# Since we are using a standalone index, we create it after adding documents
+client.index_create(
+    namespace=NAMESPACE,
+    name=INDEX_NAME,
+    vector_field=VECTOR_FIELD,
+    dimensions=DIMENSIONS,
+    mode=types.IndexMode.STANDALONE,
+    vector_distance_metric=DISTANCE_METRIC,
+)
+
+# Wait for the index to be ready
+wait_for_index_ready(client, INDEX_NAME)
 
 # Search for similar documents
 query = "Tell me about vector databases"
@@ -63,8 +96,13 @@ for i, (doc, score) in enumerate(docs_and_scores):
     print(f"Metadata: {doc.metadata}")
     print()
 
-# Example of deleting documents
-if document_ids:
-    # Delete the first document
-    vector_store.delete(ids=[document_ids[0]])
-    print(f"Deleted document with ID: {document_ids[0]}") 
+# Delete the documents from the vector store
+vector_store.delete(ids=document_ids)
+print(f"Deleted {len(document_ids)} documents from the vector store")
+
+# Delete the index from AVS
+client.index_drop(namespace=NAMESPACE, name=INDEX_NAME)
+print(f"Deleted index {INDEX_NAME} from Aerospike")
+
+# Close the client
+client.close()

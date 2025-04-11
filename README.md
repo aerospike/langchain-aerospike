@@ -35,6 +35,16 @@ eval $(poetry env activate)
 
 See the pyproject.toml file dependencies section.
 
+## Running Examples
+
+The examples in the `examples/` directory require additional dependencies. You can install them with:
+
+```bash
+poetry install --with examples
+```
+
+This will install dependencies like `langchain-huggingface` which are used in the example scripts.
+
 ## Usage
 
 ```python
@@ -82,6 +92,8 @@ for doc in docs:
 ```bash
 poetry run pytest tests/
 ```
+
+> **Note:** Aerospike Vector Search server version 1.1.0 or newer is required to run the integration tests.
 
 ## Advanced Usage
 
