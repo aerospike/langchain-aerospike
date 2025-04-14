@@ -9,7 +9,7 @@ updates:
     reviewers:
       - "aerospike/team-vector"
     assignees:
-      - "aerospike/team-vector"
+      - "dwelch-spike"
     commit-message:
       prefix: "chore"
       include: "scope"
@@ -26,7 +26,7 @@ updates:
     reviewers:
       - "aerospike/team-vector"
     assignees:
-      - "aerospike/team-vector"
+      - "dwelch-spike"
     commit-message:
       prefix: "chore"
       include: "scope"
@@ -43,7 +43,7 @@ updates:
     reviewers:
       - "aerospike/team-vector"
     assignees:
-      - "aerospike/team-vector"
+      - "dwelch-spike"
     commit-message:
       prefix: "chore"
       include: "scope"
