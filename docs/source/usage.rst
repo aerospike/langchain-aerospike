@@ -16,7 +16,7 @@ Here is a basic example of creating a vector store and adding documents to it.
 .. code-block:: python
 
     from langchain_aerospike.vectorstores import Aerospike
-    from langchain_huggingface import HuggingFaceEmbeddings 
+    from langchain_huggingface import HuggingFaceEmbeddings
     from aerospike_vector_search import Client, HostPort, types
 
     INDEX_NAME = "example-index"
@@ -99,7 +99,6 @@ Here is a complete example of creating an index and a vector store, adding docum
         """Wait until the index is ready for search."""
 
         import time
-        start_time = time.time()
         while True:
             index_status = client.index_get_status(namespace=namespace, name=index_name)
             if index_status.readiness == types.IndexReadiness.READY:
