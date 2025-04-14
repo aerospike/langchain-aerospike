@@ -30,7 +30,28 @@ FEAT_KEY_PATH = DIR_PATH + "/features.conf"
 
 def compose_up() -> None:
     subprocess.run(["docker", "compose", "up", "-d"], cwd=DIR_PATH)
-    time.sleep(10)
+
+    # Wait for the service to be ready
+    max_retries = 30
+    retry_interval = 1
+    for _ in range(max_retries):
+        try:
+            # Try to connect to the Aerospike Vector Search service
+            client = Client(seeds=types.HostPort(
+                host=TEST_AEROSPIKE_HOST_PORT[0],
+                port=TEST_AEROSPIKE_HOST_PORT[1]
+            ))
+            client.close()
+            # If connection succeeds, service is ready
+            break
+        except Exception:
+            time.sleep(retry_interval)
+    else:
+        raise TimeoutError("Aerospike service failed to start within the expected time")
+
+    # a little extra time for the server to go from
+    # connectable to ready to serve requests
+    time.sleep(2)
 
 
 def compose_down() -> None:
