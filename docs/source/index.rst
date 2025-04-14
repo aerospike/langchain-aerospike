@@ -1,5 +1,5 @@
 Welcome to LangChain Aerospike's documentation!
-===========================================
+===============================================
 
 .. toctree::
    :maxdepth: 2

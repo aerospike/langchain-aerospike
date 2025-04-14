@@ -2,7 +2,7 @@ API Reference
 =============
 
 Aerospike Vector Store
----------------------
+----------------------
 
 .. automodule:: langchain_aerospike.vectorstores.aerospike
    :members:

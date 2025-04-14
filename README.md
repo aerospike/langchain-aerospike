@@ -104,7 +104,12 @@ Documentation is built using Sphinx and hosted on ReadTheDocs. To build the docu
 poetry install --with docs
 ```
 
-2. Build the documentation:
+2. Activate the virtual environment:
+```bash
+eval $(poetry env activate)
+```
+
+3. Build the documentation:
 ```bash
 cd docs
 make html

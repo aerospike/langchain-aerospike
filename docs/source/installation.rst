@@ -8,7 +8,7 @@ You can install the package directly from PyPI:
     pip install langchain-aerospike
 
 Development Installation
------------------------
+------------------------
 
 This project uses Poetry for dependency management and packaging. To set up your development environment:
 
@@ -33,7 +33,7 @@ This project uses Poetry for dependency management and packaging. To set up your
     eval $(poetry env activate)
 
 Running Examples
----------------
+----------------
 
 The examples in the ``examples/`` directory require additional dependencies. You can install them with:
 
