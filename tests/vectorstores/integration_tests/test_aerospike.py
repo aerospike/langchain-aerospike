@@ -32,7 +32,7 @@ def compose_up() -> None:
     subprocess.run(["docker", "compose", "up", "-d"], cwd=DIR_PATH)
 
     # Wait for the service to be ready
-    max_retries = 30
+    max_retries = 60
     retry_interval = 1
     for _ in range(max_retries):
         try:
@@ -51,7 +51,7 @@ def compose_up() -> None:
 
     # a little extra time for the server to go from
     # connectable to ready to serve requests
-    time.sleep(2)
+    time.sleep(10)
 
 
 def compose_down() -> None:

@@ -1,7 +1,7 @@
 Usage
 =====
 
-The ``Aerospike`` vector store wraps the ``aerospike_vector_search`` client to provide a langchain compatible ``VectorStore`` interface.
+The ``Aerospike`` vector store wraps the ``aerospike_vector_search`` client to provide a langchain compatible vector store interface.
 Indexes must be created with the ``aerospike_vector_search`` client before using the ``Aerospike`` vector store.
 Target indexes with the ``Aerospike`` ``name`` parameter.
 
