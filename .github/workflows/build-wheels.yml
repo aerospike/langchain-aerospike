@@ -82,7 +82,7 @@ jobs:
 
     - name: Upload builds to JFrog
       run: |
-          for file in dist/*; do
+          for file in *; do
             jf rt upload "$file" "${{env.JFROG_CLI_BUILD_PROJECT}}-pypi-dev-local/${{env.ARTIFACT_NAME}}/${{steps.get_version.outputs.VERSION}}/" \
                 --build-name="${{ env.JFROG_CLI_BUILD_NAME }}" --build-number="${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
           done
