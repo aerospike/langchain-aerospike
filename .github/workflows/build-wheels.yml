@@ -15,7 +15,6 @@ env:
   JFROG_CLI_LOG_LEVEL: DEBUG
   JFROG_CLI_BUILD_PROJECT: 'vector'
   ARTIFACT_NAME: 'langchain-aerospike'
-  PYPI_REPO: 'https://aerospike.jfrog.io/artifactory/api/pypi/vector-pypi-dev-local'
 
 jobs:
   build:
@@ -81,7 +80,7 @@ jobs:
       run: |
         ls -la dist/
 
-    - name: "Upload builds to JFrog"
+    - name: Upload builds to JFrog
       run: |
           for file in dist/*; do
             jf rt upload "$file" "${{env.JFROG_CLI_BUILD_PROJECT}}-pypi-dev-local/${{env.ARTIFACT_NAME}}/${{steps.get_version.outputs.VERSION}}/" \
@@ -90,3 +89,26 @@ jobs:
           jfrog rt build-collect-env "${{ env.JFROG_CLI_BUILD_NAME }}" "${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
           jfrog rt build-add-git "${{ env.JFROG_CLI_BUILD_NAME }}" "${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
           jfrog rt build-publish "${{ env.JFROG_CLI_BUILD_NAME }}" "${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
+
+    - name: Create Release Bundle
+      run: |
+          
+          echo '{
+          
+              "name": "${{ env.JFROG_CLI_BUILD_NAME }}",
+              "version": "${{ steps.get_version.outputs.VERSION }}",
+              "description": "Release bundle for ${{github.repository}} version ${{ steps.get_version.outputs.VERSION }}",
+              "files": [
+                {
+                  "project": "${{env.JFROG_CLI_BUILD_PROJECT}}",
+                  "build":  "${{ env.JFROG_CLI_BUILD_NAME }}-pypi"
+                }
+              ]
+            }' > release-bundle-spec.json
+            cat release-bundle-spec.json
+
+          jf release-bundle-create \
+            "${{ env.JFROG_CLI_BUILD_NAME }}" "${{ steps.get_version.outputs.VERSION }}"\
+            --project ${{ env.JFROG_CLI_BUILD_PROJECT }} \
+            --spec release-bundle-spec.json \
+            --signing-key aerospike --sync
