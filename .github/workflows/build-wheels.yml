@@ -83,8 +83,9 @@ jobs:
 
     - name: "Upload builds to JFrog"
       run: |
-          for file in dist/*.whl dist/*.tar.gz; do
-            jf rt upload "$file" "${{env.JFROG_CLI_BUILD_PROJECT}}-pypi-dev-local/${{env.ARTIFACT_NAME}}/${{steps.get_version.outputs.VERSION}}/" \
+          for file in dist/; do
+            if [[ "$file" == *.whl || "$file" == *.tar.gz ]]; then
+              jf rt upload "$file" "${{env.JFROG_CLI_BUILD_PROJECT}}-pypi-dev-local/${{env.ARTIFACT_NAME}}/${{steps.get_version.outputs.VERSION}}/" \
                   --build-name="${{ env.JFROG_CLI_BUILD_NAME }}" --build-number="${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
             else
               echo "Skipping upload of $file as it does not match *.whl or *.tar.gz"
