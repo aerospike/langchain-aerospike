@@ -89,6 +89,7 @@ jobs:
           jfrog rt build-collect-env "${{ env.JFROG_CLI_BUILD_NAME }}" "${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
           jfrog rt build-add-git "${{ env.JFROG_CLI_BUILD_NAME }}" "${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
           jfrog rt build-publish "${{ env.JFROG_CLI_BUILD_NAME }}" "${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
+      working-directory: ./dist
 
     - name: Create Release Bundle
       run: |
