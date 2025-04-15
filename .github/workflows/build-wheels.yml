@@ -101,7 +101,7 @@ jobs:
               "files": [
                 {
                   "project": "${{env.JFROG_CLI_BUILD_PROJECT}}",
-                  "build":  "${{ env.JFROG_CLI_BUILD_NAME }}-pypi"
+                  "build":  "${{ env.JFROG_CLI_BUILD_NAME }}"
                 }
               ]
             }' > release-bundle-spec.json
