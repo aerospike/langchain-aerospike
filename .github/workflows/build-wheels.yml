@@ -15,6 +15,7 @@ env:
   JFROG_CLI_LOG_LEVEL: DEBUG
   JFROG_CLI_BUILD_PROJECT: 'vector'
   ARTIFACT_NAME: 'langchain-aerospike'
+  PYPI_REPO: 'https://aerospike.jfrog.io/artifactory/api/pypi/vector-pypi-dev-local'
 
 jobs:
   build:
@@ -47,7 +48,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        jf poetry install --no-interaction --no-root
+        poetry install --no-interaction
 
     - name: Get version from tag
       id: get_version
@@ -74,7 +75,7 @@ jobs:
 
     - name: Build package
       run: |
-        jf poetry build --no-interaction --build-name="${{ env.JFROG_CLI_BUILD_NAME }}-macos" --build-number="${{steps.get_version.outputs.VERSION}}" --project="${{env.JFROG_CLI_BUILD_PROJECT}}"
+        poetry build --no-interaction
 
     - name: List package files
       run: |
