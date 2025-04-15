@@ -38,6 +38,13 @@ jobs:
         virtualenvs-create: true
         virtualenvs-in-project: true
 
+    - name: setup jfrog
+      uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6       
+      env:
+        JF_URL: https://aerospike.jfrog.io
+        JF_ACCESS_TOKEN: ${{ secrets.JFROG_ACCESS_TOKEN }}
+        JF_PROJECT: ${{ env.JFROG_CLI_BUILD_PROJECT }}
+
     - name: Install dependencies
       run: |
         jf poetry install --no-interaction --no-root
@@ -72,14 +79,6 @@ jobs:
     - name: List package files
       run: |
         ls -la dist/
-        
-
-    - name: setup jfrog
-      uses: jfrog/setup-jfrog-cli@f748a0599171a192a2668afee8d0497f7c1069df # v4.5.6       
-      env:
-        JF_URL: https://aerospike.jfrog.io
-        JF_ACCESS_TOKEN: ${{ secrets.JFROG_ACCESS_TOKEN }}
-        JF_PROJECT: ${{ env.JFROG_CLI_BUILD_PROJECT }}
 
     - name: "Upload builds to JFrog"
       run: |
