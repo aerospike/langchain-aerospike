@@ -16,7 +16,7 @@ This project uses Poetry for dependency management and packaging. To set up your
 
 1. Install Poetry if you haven't already:
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+brew install poetry
 ```
 
 2. Clone the repository and install dependencies:

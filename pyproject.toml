@@ -26,7 +26,7 @@ packages = [{include = "langchain_aerospike"}]
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 langchain-core = ">=0.1.0"
-numpy = ">=1.20.0"
+numpy = "<2.0.0"
 aerospike-vector-search = ">=4.1.0"
 
 [tool.poetry.group.dev.dependencies]
