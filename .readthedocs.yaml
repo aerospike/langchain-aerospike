@@ -10,6 +10,8 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
+    # Install poetry
+    poetry: "1.7.1"
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
@@ -24,10 +26,8 @@ sphinx:
 # to build your documentation
 python:
   install:
-    - method: pip
+    - method: poetry
       path: .
-      extra_requirements:
-        - docs
 
 # Uncomment if you want PDF and EPUB builds
 # formats:
