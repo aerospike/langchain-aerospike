@@ -106,7 +106,7 @@ poetry install --with docs
 
 2. Activate the virtual environment:
 ```bash
-eval $(poetry env activate)
+poetry shell
 ```
 
 3. Build the documentation:
@@ -115,7 +115,25 @@ cd docs
 make html
 ```
 
-3. View the documentation in your browser by opening `docs/build/html/index.html`.
+4. View the documentation in your browser by opening `docs/build/html/index.html`.
+
+## Continuous Integration and Deployment
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+- **Build and Release Workflow**: Automatically builds and creates a GitHub Release with the package wheels when a new tag starting with 'v' is pushed
+
+To create a new release:
+
+1. Update the version in `pyproject.toml`
+2. Commit the changes
+3. Create and push a new tag:
+```bash
+git tag v0.1.0  # Use appropriate version
+git push origin v0.1.0
+```
+
+See the [Release Process](RELEASE.md) document for more details.
 
 ## Advanced Usage
 
