@@ -24,7 +24,8 @@ sphinx:
 # to build your documentation
 python:
   install:
-    - requirements: docs/requirements.txt
+    - method: pip
+      path: .
 
 # Uncomment if you want PDF and EPUB builds
 # formats:

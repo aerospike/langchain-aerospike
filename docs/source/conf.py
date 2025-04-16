@@ -22,8 +22,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
-    'sphinx_rtd_theme',
-    'myst_parser',
+    'sphinx_rtd_theme'
 ]
 
 templates_path = ['_templates']
@@ -57,5 +56,4 @@ myst_heading_anchors = 3
 # -- Intersphinx configuration -----------------------------------------------
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-    'langchain': ('https://python.langchain.com/en/latest/', None),
 }
