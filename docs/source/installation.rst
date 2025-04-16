@@ -16,7 +16,7 @@ This project uses Poetry for dependency management and packaging. To set up your
 
 .. code-block:: bash
 
-    brew install poetry
+    curl -sSL https://install.python-poetry.org | python3 -
 
 2. Clone the repository and install dependencies:
 

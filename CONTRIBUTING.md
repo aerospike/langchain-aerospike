@@ -87,7 +87,7 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
 If you don't have Poetry installed, you can install it using:
 
 ```bash
-brew install poetry
+curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 Make sure it's added to your PATH according to the installation instructions.
