@@ -10,6 +10,14 @@ You can install the package directly from PyPI:
 pip install langchain-aerospike
 ```
 
+## Documentation
+
+For more advanced usage, including configuring distance metrics, indexes, and other options, please refer to the API documentation and the Aerospike Vector Search client documentation
+
+https://langchain-aerospike.readthedocs.io/en/latest/
+
+https://aerospike-vector-search-python-client.readthedocs.io/en/latest/
+
 ## Development Installation
 
 This project uses Poetry for dependency management and packaging. To set up your development environment:
@@ -95,7 +103,7 @@ poetry run pytest tests/
 
 > **Note:** Aerospike Vector Search server version 1.1.0 or newer is required to run the integration tests.
 
-## Documentation
+## Building Documentation
 
 Documentation is built using Sphinx and hosted on ReadTheDocs. To build the documentation locally:
 
@@ -134,14 +142,6 @@ git push origin v0.1.0
 ```
 
 See the [Release Process](RELEASE.md) document for more details.
-
-## Advanced Usage
-
-For more advanced usage, including configuring distance metrics, indexes, and other options, please refer to the API documentation and the Aerospike Vector Search client documentation
-
-https://python.langchain.com/api_reference/community/vectorstores/langchain_community.vectorstores.aerospike.Aerospike.html
-
-https://aerospike-vector-search-python-client.readthedocs.io/en/latest/
 
 ## Migration
 
