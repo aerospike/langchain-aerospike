@@ -34,7 +34,7 @@ black = "^25.1.0"
 ruff = "^0.11.5"
 
 [tool.poetry.group.examples.dependencies]
-langchain-huggingface = "^0.1.2"
+langchain-huggingface = ">=0.1.2,<0.3.0"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "^7.1.2"
