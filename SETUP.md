@@ -14,15 +14,15 @@
 The template ships with working test values for its own CI/CD pipeline.
 When you run `setup.sh`, these are replaced with your project's values.
 
-| Template Value      | Location                                                        | Description                            |
-| ------------------- | --------------------------------------------------------------- | -------------------------------------- |
-| `test`              | cicd-standard.yaml, cicd-composable.yaml (`jf-project`)         | JFrog Artifactory project name         |
-| `test-build`        | cicd-standard.yaml, cicd-composable.yaml (`jf-build-name`)      | JFrog build identifier                 |
-| `gh-dev-test`       | cicd-standard.yaml, cicd-composable.yaml (`oidc-provider-name`) | JFrog OIDC provider for GitHub Actions |
-| `aerospike/testing` | cicd-standard.yaml, cicd-composable.yaml (`oidc-audience`)      | OIDC audience claim                    |
-| `langchain-aerospike`    | README.md, CONTRIBUTING.md                                      | Human-readable project name            |
+| Template Value        | Location                                                        | Description                            |
+| --------------------- | --------------------------------------------------------------- | -------------------------------------- |
+| `test`                | cicd-standard.yaml, cicd-composable.yaml (`jf-project`)         | JFrog Artifactory project name         |
+| `test-build`          | cicd-standard.yaml, cicd-composable.yaml (`jf-build-name`)      | JFrog build identifier                 |
+| `gh-dev-test`         | cicd-standard.yaml, cicd-composable.yaml (`oidc-provider-name`) | JFrog OIDC provider for GitHub Actions |
+| `aerospike/testing`   | cicd-standard.yaml, cicd-composable.yaml (`oidc-audience`)      | OIDC audience claim                    |
+| `langchain-aerospike` | README.md, CONTRIBUTING.md                                      | Human-readable project name            |
 | `langchain-aerospike` | README.md                                                       | GitHub repository name                 |
-| `CODEOWNERS`        | .github/CODEOWNERS                                              | Team/user who owns the code            |
+| `CODEOWNERS`          | .github/CODEOWNERS                                              | Team/user who owns the code            |
 
 ## Required GitHub Secrets
 
