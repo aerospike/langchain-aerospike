@@ -1,4 +1,4 @@
-# [PROJECT_NAME]
+# langchain-aerospike
 
 > **Note:** This is a template repository. When creating a new repository from this template, run `./setup.sh` to configure it for your project. See [SETUP.md](SETUP.md) for details.
 
@@ -12,8 +12,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/aerospike/[REPOSITORY_NAME].git
-cd [REPOSITORY_NAME]
+git clone https://github.com/aerospike/langchain-aerospike.git
+cd langchain-aerospike
 
 # If this is a new repo from the template, run the setup script first:
 ./setup.sh

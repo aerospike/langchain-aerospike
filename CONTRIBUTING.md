@@ -1,4 +1,4 @@
-# Contributing to [PROJECT_NAME]
+# Contributing to langchain-aerospike
 
 Thank you for your interest in contributing to this Aerospike project! We welcome contributions from the community.
 

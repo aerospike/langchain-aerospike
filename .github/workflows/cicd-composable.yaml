@@ -80,8 +80,8 @@ jobs:
 #     uses: aerospike/shared-workflows/.github/workflows/reusable_execute-build.yaml@7f633569d89f706899e6b8f2151a3b200576c1fd # v3.1.1
 #     with:
 #       gh-workflows-ref: 7f633569d89f706899e6b8f2151a3b200576c1fd # v3.1.1
-#       jf-project: test
-#       jf-build-name: test-build
+#       jf-project: langchain-aerospike
+#       jf-build-name: langchain-aerospike
 #       jf-build-id: ${{ github.run_id }}-${{ github.run_attempt }}-buildinfo-generic-x86_64
 #       gh-source-path: repo-source
 #       working-directory: repo-source
@@ -158,8 +158,8 @@ jobs:
 #     uses: aerospike/shared-workflows/.github/workflows/reusable_deploy-artifacts.yaml@7f633569d89f706899e6b8f2151a3b200576c1fd # v3.1.1
 #     with:
 #       gh-workflows-ref: 7f633569d89f706899e6b8f2151a3b200576c1fd # v3.1.1
-#       jf-project: test
-#       jf-build-name: test-build
+#       jf-project: langchain-aerospike
+#       jf-build-name: langchain-aerospike
 #       version: ${{ needs.extract-version.outputs.version }}
 #       jf-build-id: ${{ github.run_id }}-${{ github.run_attempt }}
 #       jf-metadata-build-id: ${{ github.run_id }}-${{ github.run_attempt }}-buildinfo
