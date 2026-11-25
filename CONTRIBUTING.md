@@ -18,6 +18,21 @@ Thank you for your interest in contributing to this Aerospike project! We welcom
 
 ## Development Setup
 
+Run Python development commands from the repository root. No LangChain
+monorepo checkout is needed:
+
+```bash
+uv sync --all-groups --locked
+make test
+make lint
+make type
+make build
+```
+
+Unit tests disable network sockets. Live tests require a separately provisioned
+SC/MRT-capable Aerospike namespace; see the [README](README.md) for requirements
+and `make integration_tests` usage. Do not run live tests against production.
+
 ### Repo Tooling
 
 Linting will be run on PRs; you can save yourself some time and annoyance by linting as you write.

@@ -1,0 +1,13 @@
+langchain-aerospike
+
+The langchain_aerospike_kv integration, its tests, and its accompanying
+design/schema/performance documentation were extracted from the LangChain
+fork at commit 5857642de1, under libs/partners/aerospike-kv.
+
+Those files were originally distributed under the MIT License. Their
+original copyright and license notice is retained in LICENSE-MIT.
+Standalone packaging and documentation changes adapt the integration to
+this repository without including or modifying the LangChain framework.
+
+The Aerospike repository template is licensed under the Apache License,
+Version 2.0, in LICENSE. Both license notices are included in distributions.

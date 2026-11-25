@@ -70,3 +70,13 @@ target/
 .trunk/logs/
 .trunk/notifications/
 .trunk/plugins/
+
+# Python development
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local validation and planning evidence
+AERO_VALIDATION.md
+.planning/
