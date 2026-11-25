@@ -1,0 +1,110 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "langchain-aerospike-kv"
+version = "0.1.0"
+description = "An integration package connecting Aerospike and LangChain byte stores."
+readme = "README.md"
+license = { text = "Apache-2.0 AND MIT" }
+requires-python = ">=3.11.0,<4.0.0"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "aerospike-sdk",
+    "langchain-core>=1.4.7,<2.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/aerospike/langchain-aerospike"
+Issues = "https://github.com/aerospike/langchain-aerospike/issues"
+
+[dependency-groups]
+test = [
+    "pytest>=9.0.3,<10.0.0",
+    "pytest-asyncio>=1.3.0,<2.0.0",
+    "pytest-socket>=0.7.0,<1.0.0",
+    "langchain-tests>=1.1.9,<2.0.0",
+]
+test_integration = ["langchain-classic"]
+lint = ["ruff>=0.13.1,<0.14.0"]
+typing = ["mypy>=2.1.0,<2.2.0"]
+build = ["build>=1.2.2,<2.0.0", "hatchling"]
+dev = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["langchain_aerospike_kv"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/langchain_aerospike_kv",
+    "/tests",
+    "/pyproject.toml",
+    "/uv.lock",
+    "/Makefile",
+    "/README.md",
+    "/DESIGN.md",
+    "/SCHEMA.md",
+    "/PERFORMANCE.md",
+    "/LICENSE",
+    "/LICENSE-MIT",
+    "/NOTICE",
+]
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["aerospike_sdk", "aerospike_sdk.*"]
+# Retain SDK types without checking the SDK's own implementation under strict mode.
+follow_imports = "silent"
+
+[[tool.mypy.overrides]]
+module = ["aerospike_native.exceptions", "aerospike_async.exceptions"]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", # Conflicts with the formatter
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "D",
+    "S101",
+    "PLR2004", # Expected counts/boundaries are test data, not production constants.
+    "SLF001", # Unit tests intentionally exercise private schema/I/O helpers.
+]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --strict-config --durations=5"
+testpaths = ["tests/unit_tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: requires a real Aerospike server",
+]
